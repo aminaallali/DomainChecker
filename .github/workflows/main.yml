@@ -1,0 +1,32 @@
+name: Domain Checker Cron
+
+on:
+  schedule:
+    # Runs every 6 hours
+    - cron: '0 */1 * * *'
+  workflow_dispatch: # Allows you to run it manually
+
+jobs:
+  check-domains:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install -e .
+
+    - name: Create Config File
+      # This creates the config file from the Secret you (hopefully) added
+      run: echo '${{ secrets.CONFIG_JSON }}' > config.json
+
+    - name: Run Domain Checker
+      # Make sure you have created domains.txt in your files!
+      run: python -m domain_checker.cli check-list domains.txt --config config.json
